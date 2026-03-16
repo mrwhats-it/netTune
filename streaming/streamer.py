@@ -1,6 +1,7 @@
 import os
 import time
 from protocol import pack_chunk
+import struct
 
 CHUNK_SIZE = 4096
 MUSIC_FOLDER = "../music"
@@ -10,6 +11,16 @@ class StreamState:
     def __init__(self):
         self.paused = False
         self.stopped = False
+
+HEADER_SIZE = 4
+
+def pack_chunk(data):
+    size = len(data)
+    header = struct.pack("!I", size)
+    return header + data
+
+def unpack_header(header_bytes):
+    return struct.unpack("!I", header_bytes)[0]
 
 def stream_song(client_socket, song_name, state):
     path = os.path.join(MUSIC_FOLDER, song_name)
@@ -23,10 +34,10 @@ def stream_song(client_socket, song_name, state):
     try:
         with open(path, "rb") as file:
             while True:
-                if state.stopped:
+                if state=="STOP":
                     break
             
-                if state.paused:
+                if state=="PAUSE":
                     time.sleep(0.1)
                     continue
 
