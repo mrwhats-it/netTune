@@ -1,6 +1,5 @@
 import os
 import time
-from protocol import pack_chunk
 import struct
 
 CHUNK_SIZE = 4096
@@ -29,7 +28,6 @@ def stream_song(client_socket, song_name, state):
         return
     
     print(f"streaming started: {song_name}")
-    client_socket.sendall(b"STREAM_START\n")
 
     try:
         with open(path, "rb") as file:

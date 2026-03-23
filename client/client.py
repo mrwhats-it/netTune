@@ -1,5 +1,4 @@
 import socket
-import ssl
 
 SERVER_IP = "192.168.29.45"
 PORT = 5000
@@ -21,10 +20,9 @@ secure_client.connect((SERVER_IP, PORT))
 
 print("Connected securely to server")
 
-while True:
-    msg = input("Enter message (type exit to quit): ")
+    while True:
 
-    secure_client.send(msg.encode())
+        data = client.recv(BUFFER_SIZE)
 
     if msg.lower() == "exit":
         break
