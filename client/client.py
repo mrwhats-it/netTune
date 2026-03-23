@@ -1,79 +1,35 @@
 import socket
+import ssl
 
-HOST = "127.0.0.1"   # server IP
+SERVER_IP = "192.168.29.45"
 PORT = 5000
 
-BUFFER_SIZE = 4096
+# Create socket
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# Create SSL context
+context = ssl.create_default_context()
 
-def connect_to_server():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((HOST, PORT))
-    print("Connected to music server")
-    return client
+# Disable certificate verification for testing (important)
+context.check_hostname = False
+context.verify_mode = ssl.CERT_NONE
 
+# Wrap socket
+secure_client = context.wrap_socket(client, server_hostname=SERVER_IP)
 
-def list_songs(client):
-    client.send("LIST\n".encode())
+secure_client.connect((SERVER_IP, PORT))
 
-    data = client.recv(4096).decode()
-    print("\nAvailable Songs:")
-    print(data)
+print("Connected securely to server")
 
+while True:
+    msg = input("Enter message (type exit to quit): ")
 
-def play_song(client):
+    secure_client.send(msg.encode())
 
-    song = input("Enter song name: ")
+    if msg.lower() == "exit":
+        break
 
-    command = f"PLAY {song}\n"
-    client.send(command.encode())
+    data = secure_client.recv(1024).decode()
+    print("Server:", data)
 
-    file = open("received_song.mp3", "wb")
-
-    print("Receiving stream...")
-
-    while True:
-
-        data = client.recv(BUFFER_SIZE)
-
-        if b"STREAM_END" in data:
-            break
-
-        file.write(data)
-
-    file.close()
-
-    print("Song saved as received_song.mp3")
-
-
-def main():
-
-    client = connect_to_server()
-
-    while True:
-
-        print("\n------ MENU ------")
-        print("1. List songs")
-        print("2. Play song")
-        print("3. Quit")
-
-        choice = input("Enter choice: ")
-
-        if choice == "1":
-            list_songs(client)
-
-        elif choice == "2":
-            play_song(client)
-
-        elif choice == "3":
-            client.send("QUIT\n".encode())
-            break
-
-        else:
-            print("Invalid choice")
-
-    client.close()
-
-
-if __name__ == "__main__":
-    main()
+secure_client.close()
