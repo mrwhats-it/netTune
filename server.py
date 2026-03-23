@@ -3,9 +3,10 @@ from streaming.streamer import *
 from streaming.music_manager import *
 import wave
 import json
+import threading
 
 MUSIC_FOLDER = "music"
-BUFFER_SIZE = 65536
+BUFFER_SIZE = 2048
 
 def init_details(client_socket,song_name):
     
@@ -15,7 +16,8 @@ def init_details(client_socket,song_name):
                  "channels":wf.getnchannels(),
                  "framerate":wf.getframerate()}
         
-    client_socket.send((json.dumps(details) + "\n").encode())
+        client_socket.send((json.dumps(details) + "\n").encode())
+        return details
 
 def read_data(client_socket,song_name):
     path = os.path.join(MUSIC_FOLDER, song_name)
@@ -46,7 +48,7 @@ def run_server():
     #for now just take the filename
     song_name=instruction.split()[1]
 
-    init_details(client_socket,song_name)
+    details=init_details(client_socket,song_name)
     read_data(client_socket,song_name)
     
 
