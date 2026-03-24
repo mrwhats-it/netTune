@@ -44,7 +44,7 @@ def run_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    server_ip = "127.0.0.1"
+    server_ip = "0.0.0.0"
     port = 8000
 
     server.bind((server_ip, port))
