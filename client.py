@@ -12,6 +12,7 @@ import socket
 BUFFER_SIZE = 2048
 q = queue.Queue(maxsize=50)
 buf=bytearray()
+init_details_dict=dict()
 
 def fetch_init_details(client):
     buffer = ""
@@ -43,23 +44,26 @@ def read_buf(n):
     buf = buf[n:]
     return bytes(out)
 
+
+def network_thread(client):
+    while True:
+        data=client.recv(BUFFER_SIZE)
+        if not data:
+            break
+        q.put(data)
+
+
+def callback(in_data, frame_count, time_info, status):
+    global init_details_dict
+    try:
+        data=read_buf(frame_count*init_details_dict["smplwidth"]*init_details_dict["channels"])
+        
+    except:
+        data=b'\x00'*2048
+    return data,pyaudio.paContinue
+
 def main():
-
-    def callback(in_data, frame_count, time_info, status):
-        try:
-            data=read_buf(frame_count*init_details_dict["smplwidth"]*init_details_dict["channels"])
-            
-        except:
-            data=b'\x00'*2048
-        return data,pyaudio.paContinue
-    
-    def network_thread():
-        while True:
-            data=client.recv(BUFFER_SIZE)
-            if not data:
-                break
-            q.put(data)
-
+    global init_details_dict
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     server_ip = "0.0.0.0"
@@ -69,7 +73,7 @@ def main():
     client.send("PLAY m1.wav".encode("utf8"))
     init_details_dict=fetch_init_details(client)
     print(init_details_dict)
-    nt = threading.Thread(target=network_thread)
+    nt = threading.Thread(target=network_thread, args=(client,))
     nt.start()
 
     p = pyaudio.PyAudio()

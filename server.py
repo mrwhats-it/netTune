@@ -16,7 +16,7 @@ def init_details(client_socket,song_name):
                  "channels":wf.getnchannels(),
                  "framerate":wf.getframerate()}
         
-        client_socket.send((json.dumps(details) + "\n").encode())
+        client_socket.send((json.dumps(details) + "\n").encode('utf-8'))
         return details
 
 def read_data(client_socket,song_name):
