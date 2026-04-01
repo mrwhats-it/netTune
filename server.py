@@ -4,6 +4,7 @@ from streaming.music_manager import *
 import wave
 import json
 import threading
+import os
 
 MUSIC_FOLDER = "music"
 BUFFER_SIZE = 2048
