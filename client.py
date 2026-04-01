@@ -1,13 +1,11 @@
 import socket
-import wave
 import time
-import sys
 import pyaudio
 import json
 import queue
 import threading
 import socket
-
+import ssl
 
 BUFFER_SIZE = 2048
 q = queue.Queue(maxsize=50)
@@ -64,12 +62,18 @@ def callback(in_data, frame_count, time_info, status):
 
 def main():
     global init_details_dict
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    server_ip = "0.0.0.0"
     server_port = 8000
+    server_ip = "0.0.0.0"
 
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+
+    raw_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client = context.wrap_socket(raw_socket, server_hostname="localhost")
     client.connect((server_ip, server_port))
+
     client.send("PLAY m1.wav".encode("utf8"))
     init_details_dict=fetch_init_details(client)
     print(init_details_dict)

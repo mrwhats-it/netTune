@@ -1,10 +1,9 @@
 import socket
-from streaming.streamer import *
-from streaming.music_manager import *
 import wave
 import json
 import threading
 import os
+import ssl
 
 MUSIC_FOLDER = "music"
 BUFFER_SIZE = 2048
@@ -42,6 +41,9 @@ def run_client(client_socket,client_address):
         
 def run_server():
     # create a socket object
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
+    
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -54,7 +56,9 @@ def run_server():
     while True:
         server.listen(4)
         client_socket, client_address = server.accept()
-        newClientThread=threading.Thread(target=run_client,args=(client_socket,client_address))
+        
+        secure_socket = context.wrap_socket(client_socket, server_side=True)
+        newClientThread=threading.Thread(target=run_client,args=(secure_socket,client_address))
         newClientThread.start()
 
     
