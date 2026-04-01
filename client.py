@@ -57,10 +57,10 @@ def callback(in_data, frame_count, time_info, status):
     global init_details_dict
     try:
         data=read_buf(frame_count*init_details_dict["smplwidth"]*init_details_dict["channels"])
-        
     except:
         data=b'\x00'*2048
     return data,pyaudio.paContinue
+
 
 def main():
     global init_details_dict
