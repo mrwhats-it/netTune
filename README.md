@@ -2,6 +2,119 @@
 
 Online music streaming server using raw sockets. can stream to multiple clients.
 
+## Overview
+
+This project is a client–server based online music streaming system built using Python. It allows clients to request and play audio files from a server in real time over a secure network connection.
+
+The system demonstrates key Computer Networks concepts such as socket programming, multithreading, streaming, buffering, and SSL/TLS security.
+
+## Features
+
+- Real-time audio streaming
+- Secure communication using SSL/TLS
+- Multi-client support using threading
+- Buffered streaming for smooth playback
+- Packet drop handling and underrun management
+- Performance metrics tracking
+- Graph visualization of streaming performance
+
+## System Architecture
+
+### Server
+
+- Handles multiple clients concurrently
+- Reads `.wav` files from local storage
+- Sends metadata and audio stream
+- Uses SSL for secure transmission
+
+### Client
+
+- Connects securely to server
+- Requests a song using JSON
+- Buffers incoming audio data
+- Plays audio using PyAudio
+- Tracks performance metrics
+
+## Technologies Used
+
+- Python
+- Socket Programming
+- SSL/TLS
+- PyAudio
+- Matplotlib
+- JSON
+- Multithreading
+
+## Project Structure
+
+```
+project/
+│
+├── server.py
+├── client.py
+├── music/
+│   └── m1.wav
+├── cert.pem
+├── key.pem
+└── README.md
+```
+
+---
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+pip install pyaudio matplotlib
+```
+
+### 2. Generate SSL Certificate
+
+```bash
+openssl req -new -x509 -days 365 -nodes -out cert.pem -keyout key.pem
+```
+
+### 3. Run Server
+
+```bash
+python server.py
+```
+
+### 4. Run Client
+
+```bash
+python client.py
+```
+
+## How It Works
+
+1. Client connects to server using SSL
+2. Client sends a JSON request:
+
+```json
+{
+  "action": "PLAY",
+  "song": "m1.wav"
+}
+```
+
+3. Server sends audio metadata
+4. Server streams audio data in chunks
+5. Client buffers and plays audio in real time
+
+## Performance Metrics
+
+- Throughput (KB/s)
+- Buffer size
+- Packet drops
+- Buffer underruns
+
+Graphs:
+
+- Throughput vs Time
+- Buffer Size vs Time
+
 ## Working
 
 Server streams music in fixed number of bytes. The client recieves these packets in a thread safe queue, adds them to a buffer from which the hardware fetches and plays at required rate(specific to each client).
